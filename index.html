@@ -278,15 +278,25 @@ let filters = { plat: 'all', seg: 'all' };
 
 // ── AUTH ──
 document.getElementById('pass-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
+
+// Auto-login se sessão ainda estiver ativa
+if(sessionStorage.getItem('tecfag_auth')==='1'){
+  showApp();
+}
 function checkPass(){
   if(document.getElementById('pass-input').value === PASS){
-    document.getElementById('pass-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    initApp();
+    sessionStorage.setItem('tecfag_auth','1');
+    showApp();
   } else {
     document.getElementById('pass-err').style.display='block';
     document.getElementById('pass-input').value='';
   }
+}
+
+function showApp(){
+  document.getElementById('pass-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
 }
 
 function initApp(){
