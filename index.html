@@ -268,12 +268,11 @@ main{max-width:1100px;margin:0 auto;padding:2.5rem}
 
 <script>
 const API_KEY  = '$2a$10$/P9Zm0jaaf3C9rpaLCTRpuqSDKeX5OzXpIWNM9PyvAXV.AMLap76S';
-const BIN_NAME = 'tecfag-otimizacoes';
+const BIN_ID   = '6a26f0d7f5f4af5e29cc7a68';
 const PASS     = 'tecfag2025';
 const BASE_URL = 'https://api.jsonbin.io/v3';
 
 let entries = [];
-let binId   = null;
 let editId  = null;
 let filters = { plat: 'all', seg: 'all' };
 
@@ -301,39 +300,23 @@ function initApp(){
 // ── JSONBIN ──
 async function loadData(){
   document.getElementById('entries-list').innerHTML='<div class="loading"><span class="spinner"></span>Carregando registros...</div>';
-  try {
-    const allRes = await fetch(`${BASE_URL}/b`, { headers:{ 'X-Master-Key': API_KEY } });
-    if(allRes.ok){
-      const allData = await allRes.json();
-      const existing = Array.isArray(allData) ? allData.find(b=>(b.snippetMeta&&b.snippetMeta.name===BIN_NAME)||(b.metadata&&b.metadata.name===BIN_NAME)) : null;
-      if(existing){ binId=existing.id||existing._id||existing.snippetMeta?.id; await fetchBin(); }
-      else { await createBin(); }
-    } else { await createBin(); }
-  } catch(e){ await createBin(); }
+  await fetchBin();
 }
 
 async function fetchBin(){
   try {
-    const res=await fetch(`${BASE_URL}/b/${binId}/latest`,{headers:{'X-Master-Key':API_KEY}});
+    const res=await fetch(`${BASE_URL}/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
     if(res.ok){ const data=await res.json(); entries=data.record.entries||[]; }
     else entries=[];
   } catch(e){ entries=[]; }
   renderAll();
 }
 
-async function createBin(){
-  try {
-    const res=await fetch(`${BASE_URL}/b`,{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':BIN_NAME,'X-Bin-Private':'true'},body:JSON.stringify({entries:[]})});
-    if(res.ok){ const data=await res.json(); binId=data.metadata.id; }
-  } catch(e){}
-  entries=[];
-  renderAll();
-}
+
 
 async function persistData(){
-  if(!binId) await createBin();
   try {
-    await fetch(`${BASE_URL}/b/${binId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify({entries})});
+    await fetch(`${BASE_URL}/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify({entries})});
   } catch(e){ showToast('Erro ao salvar. Verifique a conexão.'); }
 }
 
